@@ -11,7 +11,8 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { MapPin, Bus, Camera, Zap, Users, TrendingUp, Info, X } from 'lucide-react';
+import { MapPin, Bus, Camera, Zap, Info, X } from 'lucide-react';
+import { MapView } from '@/components/Map';
 
 interface MapMarker {
   id: string;
@@ -29,7 +30,6 @@ interface PopupData {
 }
 
 const InteractiveMap = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<google.maps.Map | null>(null);
   const [popup, setPopup] = useState<PopupData | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -149,42 +149,11 @@ const InteractiveMap = () => {
     { label: 'نقاط شحن', value: '50+', icon: Zap, color: '#0a1a2f' }
   ];
 
-  // Load Google Maps
-  useEffect(() => {
-    const loadMapScript = () => {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyDummy'}&v=weekly&libraries=marker`;
-      script.async = true;
-      script.onload = () => {
-        if (mapContainer.current && window.google) {
-          map.current = new window.google.maps.Map(mapContainer.current, {
-            zoom: 13,
-            center: { lat: 31.9454, lng: 35.9284 },
-            mapTypeControl: true,
-            fullscreenControl: true,
-            zoomControl: true,
-            streetViewControl: true,
-            styles: [
-              {
-                featureType: 'all',
-                elementType: 'labels.text.fill',
-                stylers: [{ color: '#0a1a2f' }]
-              }
-            ]
-          });
-
-          // Add markers
-          addMarkers();
-          setMapLoaded(true);
-        }
-      };
-      document.head.appendChild(script);
-    };
-
-    if (!mapLoaded) {
-      loadMapScript();
-    }
-  }, [mapLoaded]);
+  const onMapReady = (googleMap: google.maps.Map) => {
+    map.current = googleMap;
+    addMarkers();
+    setMapLoaded(true);
+  };
 
   const addMarkers = () => {
     if (!map.current || !window.google) return;
@@ -238,10 +207,6 @@ const InteractiveMap = () => {
       }
     });
   };
-
-  const filteredMarkers = selectedCategory === 'all' 
-    ? markers 
-    : markers.filter(m => m.type === selectedCategory);
 
   return (
     <div className="w-full bg-white" dir="rtl">
@@ -331,9 +296,11 @@ const InteractiveMap = () => {
 
       {/* Map Container */}
       <div className="relative">
-        <div 
-          ref={mapContainer} 
-          className="w-full h-[600px] bg-gray-100"
+        <MapView
+          initialCenter={{ lat: 31.9454, lng: 35.9284 }}
+          initialZoom={13}
+          onMapReady={onMapReady}
+          className="w-full h-[600px]"
         />
 
         {/* Popup */}
