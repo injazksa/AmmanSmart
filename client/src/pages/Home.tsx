@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin, Bus, Leaf, Shield, Headphones, CheckCircle, MapPin as MapMarker, CreditCard, Droplet, Bike, Video } from 'lucide-react';
 import InteractiveMap from '@/components/InteractiveMap';
+import CinematicScenes from '@/components/CinematicScenes';
 
 /**
  * AmmanSmart Home Page - Clean Version
@@ -204,8 +205,12 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Cinematic Scenes */}
+      <CinematicScenes />
+
       {/* Vision Cards Section */}
       <section 
+        id="vision-section"
         ref={(el) => { if (el) sectionRefs.current['vision'] = el; }}
         className="py-16 md:py-24 bg-gradient-to-b from-white to-gray-50 px-4"
       >
